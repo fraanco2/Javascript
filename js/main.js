@@ -87,26 +87,26 @@ function activarContadores() {
         };
 
         agregarBtn.onclick = () => {
-            if (contador === 0) return; // 👈 sin alert, simplemente termina
-
             const productId = agregarBtn.id;
             const productoSeleccionado = productos.find(p => p.id == productId);
 
-            const existente = cartProducts.find(p => p.id == productoSeleccionado.id);
+            if (contador > 0) {
+                const existente = cartProducts.find(p => p.id == productoSeleccionado.id);
 
-            cartProducts = existente
-                ? cartProducts.map(p =>
-                    p.id === productoSeleccionado.id
-                        ? { ...p, cantidad: (p.cantidad || 1) + contador }
-                        : p
-                )
-                : [...cartProducts, { ...productoSeleccionado, cantidad: contador }];
+                if (existente) {
+                    existente.cantidad += contador;
+                } else {
+                    productoSeleccionado.cantidad = contador;
+                    cartProducts.push(productoSeleccionado);
+                }
 
-            localStorage.setItem("cartProducts", JSON.stringify(cartProducts));
-            console.log(`Agregado al carrito: ${productoSeleccionado.nombre} x${contador}`);
-            
-            contador = 0;
-            counter.innerHTML = contador;
+                localStorage.setItem("cartProducts", JSON.stringify(cartProducts));
+                console.log(`Agregado al carrito: ${productoSeleccionado.nombre} x${contador}`);
+                contador = 0;
+                counter.innerHTML = contador;
+            } else {
+                console.log("No se agregó nada porque la cantidad es 0");
+            }
         };
     });
 }

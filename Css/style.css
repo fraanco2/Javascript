@@ -4,15 +4,18 @@
     box-sizing: border-box;
 }
 body{
-    background-color:beige;
+    background-color:antiquewhite;
     
 
 }
 h1{
-    color: black;
+    color:blue;
     text-align: center;
     font-style: italic;
 
+}
+main{
+    gap: 20px;
 }
 footer h2{
     margin-top:auto;
