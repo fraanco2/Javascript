@@ -1,78 +1,112 @@
-// Variables
-let productos = [];
-let precios = [];
-let total = 0;
-// Arrays
-let productosDisponibles = [
-    { nombre: "Remeras", precio: 500 },
-    { nombre: "Pantalones", precio: 1000 },
-    { nombre: "Calzados", precio: 2000 },
-    { nombre: "Gorras", precio: 300 },
-    { nombre: "Mochilas", precio: 1500 }
-];
+const productos= [
+    {
+        id: 1,
+        nombre: "lenovo",
+        precio: 1000
+    },
+    {
+        id: 2,
+        nombre: "hp",
+        precio: 2500
+    },
+    {
+        id: 3,
+        nombre: "samsung",
+        precio: 1400
+    },
+    {
+        id: 4,
+        nombre: "sony",
+        precio: 5000
+    },
+    {
+        id: 5,
+        nombre: "apple",
+        precio: 3600
+    },
+    {
+        id: 6,
+        nombre: "acer",
+        precio: 2000
+    },
+]
+let cartProducts =JSON.parse(localStorage.getItem("cartProducts")) || [];
+let productsContainer = document.getElementById("products-container")
 
-// Función para agregar productos
-function agregarProducto(nombre, precio) {
-    productos.push(nombre);
-    precios.push(precio);
-    console.log("Producto agregado: " + nombre + " por $" + precio);
+function renderProductos(productsArray){
+    productsArray.forEach(producto => {
+        const card = document.createElement("div")
+        card.innerHTML =  `<h3>${producto.nombre}</h3>
+                          <p>$${producto.precio}</p>
+                          <div class="contador-container">
+                <button class="minus-button">-</button>
+                <span class="counter">0</span>
+                <button class="plus-button">+</button>
+            </div>
+                          <button class="productoAgregar" id="${producto.id}">Agregar</button> `
+        productsContainer.appendChild(card)                      
+    })
+    addtocartbutton();
+    activarContadores();
+}
+renderProductos(productos)
+
+function addtocartbutton( ) {
+    const addbutton = document.querySelectorAll(".productoAgregar")
+    addbutton.forEach(button =>{
+        button.onclick = (e) => {
+            const productId = e.currentTarget.id 
+            const selecterProducts = productos.find(producto => producto.id == productId)
+            cartProducts.push(selecterProducts)
+            console.log(cartProducts)
+
+            localStorage.setItem("cartProducts", JSON.stringify(cartProducts))
+        } 
+    })
 }
 
-// Función para mostrar productos disponibles
-function mostrarProductosDisponibles() {
-    let listado = "Productos disponibles:\n";
-    for (let i = 0; i < productosDisponibles.length; i++) {
-        listado += (i + 1) + ". " + productosDisponibles[i].nombre + " - $" + productosDisponibles[i].precio + "\n";
-    }
-    return listado;
+function activarContadores() {
+    const productosCards = document.querySelectorAll("#products-container > div");
+
+    productosCards.forEach(card => {
+        const sumar = card.querySelector(".plus-button");
+        const restar = card.querySelector(".minus-button");
+        const counter = card.querySelector(".counter");
+        const agregarBtn = card.querySelector(".productoAgregar");
+
+        let contador = 0;
+
+        sumar.onclick = () => {
+            contador++;
+            counter.innerHTML = contador;
+        };
+
+        restar.onclick = () => {
+            contador = Math.max(0, contador - 1);
+            counter.innerHTML = contador;
+        };
+
+        agregarBtn.onclick = () => {
+            if (contador === 0) return; // 👈 sin alert, simplemente termina
+
+            const productId = agregarBtn.id;
+            const productoSeleccionado = productos.find(p => p.id == productId);
+
+            const existente = cartProducts.find(p => p.id == productoSeleccionado.id);
+
+            cartProducts = existente
+                ? cartProducts.map(p =>
+                    p.id === productoSeleccionado.id
+                        ? { ...p, cantidad: (p.cantidad || 1) + contador }
+                        : p
+                )
+                : [...cartProducts, { ...productoSeleccionado, cantidad: contador }];
+
+            localStorage.setItem("cartProducts", JSON.stringify(cartProducts));
+            console.log(`Agregado al carrito: ${productoSeleccionado.nombre} x${contador}`);
+            
+            contador = 0;
+            counter.innerHTML = contador;
+        };
+    });
 }
-
-// Función para calcular el total
-function calcularTotal() {
-    total = 0;
-    for (let i = 0; i < precios.length; i++) {
-        total = total + precios[i];
-    }
-    return total;
-}
-
-// Función para mostrar resumen de compras
-function mostrarResumen() {
-    if (productos.length == 0) {
-        alert("No has agregado productos.");
-    } else {
-        let resumen = "Resumen de compras:\n";
-        for (let i = 0; i < productos.length; i++) {
-            resumen += productos[i] + " - $" + precios[i] + "\n";
-        }
-        resumen += "\nTotal: $" + calcularTotal();
-        alert(resumen);
-    }
-}
-
-// Bucle
-while (true) {
-    let accion = prompt("¿Qué te gustaría hacer?\n1. Agregar producto\n2. Ver resumen\n3. Salir");
-    
-    if (accion == "1") {
-        alert(mostrarProductosDisponibles()); 
-        let indice = prompt("Elige el número del producto:");
-
-        let productoSeleccionado = productosDisponibles[indice - 1];
-
-        if (productoSeleccionado != undefined) {
-            agregarProducto(productoSeleccionado.nombre, productoSeleccionado.precio);
-        } else {
-            alert("Opción no válida.");
-        }
-
-    } else if (accion == "2") {
-        mostrarResumen();
-    } else if (accion == "3") {
-        alert("Gracias por usar el gestor de compras.");
-        break;
-    } else {
-        alert("Opción no válida.");
-    }
-}
-

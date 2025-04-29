@@ -1,0 +1,21 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing: border-box;
+}
+body{
+    background-color:beige;
+    
+
+}
+h1{
+    color: black;
+    text-align: center;
+    font-style: italic;
+
+}
+footer h2{
+    margin-top:auto;
+    text-align: center;
+    padding: 20px;
+}
