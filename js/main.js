@@ -1,71 +1,77 @@
-const productos= [
-    {
-        id: 1,
-        nombre: "lenovo",
-        precio: 1000
-    },
-    {
-        id: 2,
-        nombre: "hp",
-        precio: 2500
-    },
-    {
-        id: 3,
-        nombre: "samsung",
-        precio: 1400
-    },
-    {
-        id: 4,
-        nombre: "sony",
-        precio: 5000
-    },
-    {
-        id: 5,
-        nombre: "apple",
-        precio: 3600
-    },
-    {
-        id: 6,
-        nombre: "acer",
-        precio: 2000
-    },
-]
-let cartProducts =JSON.parse(localStorage.getItem("cartProducts")) || [];
-let productsContainer = document.getElementById("products-container")
+let cartProducts = JSON.parse(localStorage.getItem("cartProducts")) || [];
+let productsContainer = document.getElementById("products-container");
 
-function renderProductos(productsArray){
+fetch("./db/data.json")
+  .then(response => response.json())
+  .then(productos => {
+    renderProductos(productos);
+     addtocartbutton(productos);
+      activarContadores(productos);   
+  })
+  .catch(error => {
+   
+    console.error("Error al cargar los productos:", error);
+  });
+
+// Función para renderizar productos
+function renderProductos(productsArray) {
     productsArray.forEach(producto => {
-        const card = document.createElement("div")
-        card.innerHTML =  `<h3>${producto.nombre}</h3>
-                          <p>$${producto.precio}</p>
-                          <div class="contador-container">
-                <button class="minus-button">-</button>
-                <span class="counter">0</span>
-                <button class="plus-button">+</button>
+        const card = document.createElement("div");
+
+        
+        const imagen = producto.imagen ? producto.imagen : "./imagenes/hp.jpg";
+        card.innerHTML = `
+            <img src="${imagen}" alt="${producto.nombre}" width="100">
+            <h3>${producto.nombre}</h3>
+            <p>$${producto.precio}</p>
+            <div class="contador-container">
+            <button class="minus-button">-</button>
+            <span class="counter">1</span>
+            <button class="plus-button">+</button>
             </div>
-                          <button class="productoAgregar" id="${producto.id}">Agregar</button> `
-        productsContainer.appendChild(card)                      
-    })
-    addtocartbutton();
-    activarContadores();
-}
-renderProductos(productos)
+            <button class="productoAgregar" id="${producto.id}">Agregar</button>
+        `;
 
-function addtocartbutton( ) {
-    const addbutton = document.querySelectorAll(".productoAgregar")
-    addbutton.forEach(button =>{
+        productsContainer.appendChild(card);
+    });
+
+//aqui iba activar contadores y add to cardbutton
+}
+
+//aqui iba render productos(prodructos)
+// Función para agregar productos al carrito
+function addtocartbutton(productos) {
+    const addbutton = document.querySelectorAll(".productoAgregar");
+
+    addbutton.forEach(button => {
         button.onclick = (e) => {
-            const productId = e.currentTarget.id 
-            const selecterProducts = productos.find(producto => producto.id == productId)
-            cartProducts.push(selecterProducts)
-            console.log(cartProducts)
+            const productId = e.currentTarget.id;
+            const selectedProduct = productos.find(producto => producto.id == productId);
 
-            localStorage.setItem("cartProducts", JSON.stringify(cartProducts))
-        } 
-    })
+            const existingProduct = cartProducts.find(p => p.id == selectedProduct.id);
+
+            if (existingProduct) {
+                existingProduct.cantidad += 1;
+            } else {
+                const imagenNormalizada = selectedProduct.imagen
+                ? selectedProduct.imagen.replace("./imagenes", "/imagenes")
+                : "/imagenes/hp.jpg";
+            
+            const productoACarrito = {
+                ...selectedProduct,
+                cantidad: 1,
+                imagen: imagenNormalizada
+            };
+            
+                cartProducts.push(productoACarrito);
+            }
+
+            localStorage.setItem("cartProducts", JSON.stringify(cartProducts));
+        };
+    });
 }
 
-function activarContadores() {
+function activarContadores(productos) {
     const productosCards = document.querySelectorAll("#products-container > div");
 
     productosCards.forEach(card => {
@@ -74,7 +80,8 @@ function activarContadores() {
         const counter = card.querySelector(".counter");
         const agregarBtn = card.querySelector(".productoAgregar");
 
-        let contador = 0;
+        let contador = 1;
+        counter.innerHTML = contador;
 
         sumar.onclick = () => {
             contador++;
@@ -82,31 +89,41 @@ function activarContadores() {
         };
 
         restar.onclick = () => {
-            contador = Math.max(0, contador - 1);
+            contador = Math.max(1, contador - 1);
             counter.innerHTML = contador;
         };
 
         agregarBtn.onclick = () => {
             const productId = agregarBtn.id;
             const productoSeleccionado = productos.find(p => p.id == productId);
+            const productoACarrito = {
+                ...productoSeleccionado,
+                cantidad: contador,
+                imagen: productoSeleccionado.imagen ? productoSeleccionado.imagen.replace("./imagenes", "/imagenes") : "/imagenes/hp.jpg"
+            };
+            
 
-            if (contador > 0) {
-                const existente = cartProducts.find(p => p.id == productoSeleccionado.id);
-
-                if (existente) {
-                    existente.cantidad += contador;
-                } else {
-                    productoSeleccionado.cantidad = contador;
-                    cartProducts.push(productoSeleccionado);
-                }
-
-                localStorage.setItem("cartProducts", JSON.stringify(cartProducts));
-                console.log(`Agregado al carrito: ${productoSeleccionado.nombre} x${contador}`);
-                contador = 0;
-                counter.innerHTML = contador;
+            const existente = cartProducts.find(p => p.id == productoACarrito.id);
+            if (existente) {
+                existente.cantidad += contador;
             } else {
-                console.log("No se agregó nada porque la cantidad es 0");
+                cartProducts.push(productoACarrito);
             }
+            
+            localStorage.setItem("cartProducts", JSON.stringify(cartProducts));
+
+             
+            Swal.fire({
+              title: 'Producto agregado',
+              text: `Se ha agregado ${productoACarrito.nombre} x${contador} al carrito.`,
+              icon: 'success',
+              confirmButtonText: 'Aceptar',
+              timer: 2000,
+              showConfirmButton: false
+              });
+
+            contador = 1;
+            counter.innerHTML = contador;
         };
     });
 }

@@ -1,0 +1,38 @@
+ [
+    {
+        "id": 1,
+        "nombre": "lenovo",
+        "precio": 1000,
+        "imagen": "./imagenes/acer.jpg" 
+    },
+    {
+        "id": 2,
+        "nombre": "hp",
+        "precio": 2500,
+        "imagen": "./imagenes/hp.jpg"
+    },
+    {
+        "id": 3,
+        "nombre": "samsung",
+        "precio": 1400,
+        "imagen":"./imagenes/hp.jpg"
+    },
+    {
+        "id": 4,
+        "nombre": "sony",
+        "precio": 5000,
+        "imagen":"./imagenes/apple.jpg"
+    },
+    {
+        "id": 5,
+        "nombre": "apple",
+        "precio": 3600,
+        "imagen": "./imagenes/apple.jpg"
+    },
+    {
+        "id": 6,
+        "nombre": "acer",
+        "precio": 2000,
+        "imagen": "./imagenes/acer.jpg"
+    }
+]
