@@ -5,21 +5,22 @@ fetch("./db/data.json")
   .then(response => response.json())
   .then(productos => {
     renderProductos(productos);
-     addtocartbutton(productos);
       activarContadores(productos);   
   })
   .catch(error => {
-   
-    console.error("Error al cargar los productos:", error);
+    Swal.fire({
+      title: "Error al cargar los productos",
+      text: "Hubo un problema al cargar los productos. Por favor, intenta más tarde.",
+      icon: "error",
+      confirmButtonText: "Aceptar"
+    });
   });
-
+   
 // Función para renderizar productos
 function renderProductos(productsArray) {
     productsArray.forEach(producto => {
         const card = document.createElement("div");
-
-        
-        const imagen = producto.imagen ? producto.imagen : "./imagenes/hp.jpg";
+        const imagen = producto.imagen || "./imagenes/hp.jpg";
         card.innerHTML = `
             <img src="${imagen}" alt="${producto.nombre}" width="100">
             <h3>${producto.nombre}</h3>
@@ -35,40 +36,6 @@ function renderProductos(productsArray) {
         productsContainer.appendChild(card);
     });
 
-//aqui iba activar contadores y add to cardbutton
-}
-
-//aqui iba render productos(prodructos)
-// Función para agregar productos al carrito
-function addtocartbutton(productos) {
-    const addbutton = document.querySelectorAll(".productoAgregar");
-
-    addbutton.forEach(button => {
-        button.onclick = (e) => {
-            const productId = e.currentTarget.id;
-            const selectedProduct = productos.find(producto => producto.id == productId);
-
-            const existingProduct = cartProducts.find(p => p.id == selectedProduct.id);
-
-            if (existingProduct) {
-                existingProduct.cantidad += 1;
-            } else {
-                const imagenNormalizada = selectedProduct.imagen
-                ? selectedProduct.imagen.replace("./imagenes", "/imagenes")
-                : "/imagenes/hp.jpg";
-            
-            const productoACarrito = {
-                ...selectedProduct,
-                cantidad: 1,
-                imagen: imagenNormalizada
-            };
-            
-                cartProducts.push(productoACarrito);
-            }
-
-            localStorage.setItem("cartProducts", JSON.stringify(cartProducts));
-        };
-    });
 }
 
 function activarContadores(productos) {
